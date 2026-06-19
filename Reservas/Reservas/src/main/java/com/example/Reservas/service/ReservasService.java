@@ -59,7 +59,7 @@ public class ReservasService {
     private WebClient.Builder webClientBuilder;
 
     public boolean verificarCupoEnEventos(Long eventoId) {
-        // Supongamos que el micro de Eventos corre en el puerto 8083
+        // Suponiendo que el microservicio de Eventos corre en el puerto 8083 :)
         Integer capacidadDisponible = webClientBuilder.build()
                 .get()
                 .uri("http://localhost:8083/api/eventos/" + eventoId + "/capacidad")

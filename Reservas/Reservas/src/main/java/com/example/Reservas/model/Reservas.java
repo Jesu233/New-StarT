@@ -1,7 +1,10 @@
 package com.example.Reservas.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -11,13 +14,18 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Schema(description = "Entidad que representa los cupos de los eventos vendidos" )
 public class Reservas {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "Identificador único de la reserva",
+            example = "1",
+            accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
-    @NotNull
+    @NotBlank
+    @Size(min = 4, max = 50)
     private String nombre;
 
     @Column(name = "fecha_inicio", nullable = false)
@@ -28,14 +36,14 @@ public class Reservas {
     @NotNull
     private LocalDateTime fechaFin;
 
-    @NotNull
+    @NotBlank
     private String tipo;
 
-    @NotNull
+    @NotBlank
     private String cliente;
 
 
-
+    @NotBlank
     private String estado;
 
 
