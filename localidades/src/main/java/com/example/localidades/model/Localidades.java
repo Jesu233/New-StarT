@@ -5,12 +5,13 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.hateoas.RepresentationModel;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Localidades {
+public class Localidades extends RepresentationModel<Localidades> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
