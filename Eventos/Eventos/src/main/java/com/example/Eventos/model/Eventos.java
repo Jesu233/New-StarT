@@ -4,9 +4,11 @@ package com.example.Eventos.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDateTime;
 
@@ -16,7 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 @Schema(description = "Entidad que representa a un evento registrado en el sistema")
-public class Eventos {
+public class Eventos extends RepresentationModel<Eventos> {
 
 
     @Id
@@ -27,7 +29,7 @@ public class Eventos {
     private Long id;
 
     @Size(min = 4, max = 50)
-    @NotNull (message = "Se necesita el nombre del evento.")
+    @NotBlank(message = "Se necesita el nombre del evento.")
     @Schema(
             description = "Nombre del evento",
             example = "Cosmódromo",
@@ -52,7 +54,7 @@ public class Eventos {
     )
     private LocalDateTime fechaEvento;
 
-    @NotNull (message = "EL evento necesita un lugar.")
+    @NotBlank (message = "EL evento necesita un lugar.")
     @Column(name = "lugar_evento")
     @Max(50)
     @Schema (

@@ -1,12 +1,14 @@
 package com.example.Eventos.controller;
 
+import com.example.Eventos.assembler.EventosModelAssembler;
 import com.example.Eventos.model.Eventos;
 import com.example.Eventos.service.EventosService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.transaction.Transactional;
+
+
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -27,10 +29,20 @@ public class EventosController {
     @Autowired
     private EventosService eventosService;
 
+    @Autowired
+    private EventosModelAssembler assembler;
+
 
     @GetMapping
-    public ResponseEntity<List<Eventos>> listarTodo() {
-        return ResponseEntity.ok(eventosService.listarTodo());
+    public ResponseEntity<List<Eventos>> listarTodo(){
+        List<Eventos> eventos = eventosService.listarTodo();
+
+
+        List<Eventos> eventosConLinks = eventos.stream()
+                .map(assembler::toModel)
+                .toList();
+
+        return ResponseEntity.ok(eventosConLinks);
     }
 
     @GetMapping("/{id}/capacidad")
@@ -75,9 +87,11 @@ public class EventosController {
 
     })
     public ResponseEntity<Eventos> agregarEvento(@Valid @RequestBody Eventos eventos) {
-        Eventos nuevoEvento = eventosService.agregarEvento(eventos);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoEvento);
+        Eventos evento = eventosService.agregarEvento(eventos);
+        return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(evento));
     }
+
+
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
@@ -154,8 +168,8 @@ public class EventosController {
 
     })
     public ResponseEntity<Eventos> actualizarEvento(@PathVariable Long id, @Valid @RequestBody Eventos eventos) {
-        Eventos eventoActualizado = eventosService.actualizarEvento(id, eventos);
-        return ResponseEntity.ok(eventoActualizado);
+        Eventos evento = eventosService.actualizarEvento(id, eventos);
+        return ResponseEntity.ok(assembler.toModel(evento));
     }
 
     @GetMapping("/{id}")
@@ -195,7 +209,7 @@ public class EventosController {
     })
     public ResponseEntity<Eventos> buscarPorId(@PathVariable Long id) {
         Eventos evento = eventosService.buscarPorId(id);
-        return ResponseEntity.ok(evento);
+        return ResponseEntity.ok(assembler.toModel(evento));
     }
 
 
@@ -236,7 +250,7 @@ public class EventosController {
     })
     public ResponseEntity<Eventos> buscarPorNombre(@PathVariable String nombre) {
         Eventos evento = eventosService.buscarPorNombre(nombre);
-        return ResponseEntity.ok(evento);
+        return ResponseEntity.ok(assembler.toModel(evento));
     }
 
 
