@@ -2,6 +2,11 @@ package com.example.Eventos.controller;
 
 import com.example.Eventos.model.Eventos;
 import com.example.Eventos.service.EventosService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -15,6 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/evento")
+@SecurityRequirement(name = "bearerAuth")
 public class EventosController {
 
 
@@ -35,6 +41,39 @@ public class EventosController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN')")
+    @Operation(
+            summary = "Crear evento",
+            description = "Crea un evento evento en el sistema"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Evento creado correctamente"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "No autenticado"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Sin permisos"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Recurso no encontrado"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Fallo del servidor"
+            )
+
+
+
+    })
     public ResponseEntity<Eventos> agregarEvento(@Valid @RequestBody Eventos eventos) {
         Eventos nuevoEvento = eventosService.agregarEvento(eventos);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoEvento);
@@ -42,12 +81,78 @@ public class EventosController {
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
+    @Operation(
+            summary = "eliminar evento",
+            description = "Elimina un evento evento en el sistema"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Evento eliminado correctamente"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "No autenticado"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Sin permisos"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Recurso no encontrado"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Fallo del servidor"
+            )
+
+
+
+    })
     public ResponseEntity<Void> eliminarEvento(@PathVariable Long id) {
         eventosService.eliminarEvento(id);
         return ResponseEntity.noContent().build();
     }
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
+    @Operation(
+            summary = "actualizar evento",
+            description = "Actualiza un evento evento en el sistema"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Evento actualizado correctamente"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "No autenticado"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Sin permisos"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Recurso no encontrado"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Fallo del servidor"
+            )
+
+
+
+    })
     public ResponseEntity<Eventos> actualizarEvento(@PathVariable Long id, @Valid @RequestBody Eventos eventos) {
         Eventos eventoActualizado = eventosService.actualizarEvento(id, eventos);
         return ResponseEntity.ok(eventoActualizado);
@@ -55,6 +160,39 @@ public class EventosController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
+    @Operation(
+            summary = "buscar por ID",
+            description = "busca un evento a través de su ID en el sistema"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Evento encontrado"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "No autenticado"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Sin permisos"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Recurso no encontrado"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Fallo del servidor"
+            )
+
+
+
+    })
     public ResponseEntity<Eventos> buscarPorId(@PathVariable Long id) {
         Eventos evento = eventosService.buscarPorId(id);
         return ResponseEntity.ok(evento);
@@ -63,6 +201,39 @@ public class EventosController {
 
     @GetMapping("/nombre/{nombre}")
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @Operation(
+            summary = "buscar por nombre",
+            description = "busca un evento a través de su nombre en el sistema"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Evento encontrado"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "No autenticado"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Sin permisos"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Recurso no encontrado"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Fallo del servidor"
+            )
+
+
+
+    })
     public ResponseEntity<Eventos> buscarPorNombre(@PathVariable String nombre) {
         Eventos evento = eventosService.buscarPorNombre(nombre);
         return ResponseEntity.ok(evento);
