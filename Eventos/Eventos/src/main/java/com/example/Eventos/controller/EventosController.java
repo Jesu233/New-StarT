@@ -48,7 +48,7 @@ public class EventosController {
     @GetMapping("/{id}/capacidad")
     public ResponseEntity<Long> obtenerCapacidad(@PathVariable Long id) {
         Eventos evento = eventosService.buscarPorId(id);
-        return ResponseEntity.ok(evento.getCapacidad());
+        return ResponseEntity.ok( evento.getCapacidad());
     }
 
     @PostMapping

@@ -1,6 +1,7 @@
 package com.example.Eventos.model;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -12,11 +13,11 @@ import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDateTime;
 
+@Data
 @Entity
 @Table(name = "eventos")
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @Schema(description = "Entidad que representa a un evento registrado en el sistema")
 public class Eventos extends RepresentationModel<Eventos> {
 
@@ -47,6 +48,7 @@ public class Eventos extends RepresentationModel<Eventos> {
 
     @NotNull (message = "El evento necesita una fecha.")
     @Column(name = "fecha_evento")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Schema(
             description = "Fecha y hora en que se realizará el evento",
             example = "2026-08-15T20:00:00",

@@ -26,7 +26,7 @@ public class EventosModelAssembler implements RepresentationModelAssembler<Event
 
         evento.add(linkTo(methodOn(EventosController.class).eliminarEvento(evento.getId())).withRel("eliminar"));
 
-        evento.add(linkTo(methodOn(EventosController.class).obtenerCapacidad(evento.getId())).withRel("obtener capacidad"));
+
 
 
 

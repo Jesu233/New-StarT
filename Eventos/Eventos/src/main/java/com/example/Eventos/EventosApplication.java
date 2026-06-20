@@ -7,9 +7,10 @@ import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoCon
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication(exclude = { UserDetailsServiceAutoConfiguration.class })
-@EntityScan("com.example.Eventos.model")
-@EnableJpaRepositories("com.example.Eventos.repository")
+@SpringBootApplication(exclude = { UserDetailsServiceAutoConfiguration.class },
+excludeName = { "org.springdoc.core.configuration.SpringDocHateoasConfiguration" })
+
+
 @ComponentScan(basePackages = "com.example.Eventos")
 public class EventosApplication {
 
