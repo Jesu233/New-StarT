@@ -8,15 +8,23 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 
 @Component
-public class LocalidadesModelAssembler implements RepresentationModelAssembler<Localidades,Localidades> {
+public class LocalidadesModelAssembler implements RepresentationModelAssembler<Localidades, Localidades> {
 
     @Override
     public Localidades toModel(Localidades localidad) {
 
+        localidad.add(linkTo(methodOn(LocalidadesController.class).obtener(localidad.getId())).withSelfRel());
+
+        localidad.add(linkTo(methodOn(LocalidadesController.class).listar()).withRel("todos"));
+
         localidad.add(linkTo(methodOn(LocalidadesController.class).actualizar(localidad.getId(), null)).withRel("actualizar"));
 
+        localidad.add(linkTo(methodOn(LocalidadesController.class).eliminar(localidad.getId())).withRel("eliminar"));
+
+        localidad.add(linkTo(methodOn(LocalidadesController.class).capacidadTotal(localidad.getId())).withRel("capacidad-total"));
+
+        localidad.add(linkTo(methodOn(LocalidadesController.class).obtenerPorRecinto(localidad.getRecintoId())).withRel("por-recinto"));
 
         return localidad;
     }
-
 }
