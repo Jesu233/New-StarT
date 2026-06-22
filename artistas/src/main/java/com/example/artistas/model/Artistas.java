@@ -23,7 +23,7 @@ public class Artistas extends RepresentationModel<Artistas> {
     private Long id;
 
     @NotBlank(message = "El nombre no puede estar vacío")
-    @Size(min = 10, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres")
+    @Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres")
     @Schema(
             description = "Nombre del artista",
             example = "Metallica",
