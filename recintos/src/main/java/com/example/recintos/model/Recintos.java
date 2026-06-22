@@ -6,13 +6,14 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.hateoas.RepresentationModel;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Recintos {
+public class Recintos extends RepresentationModel<Recintos> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
