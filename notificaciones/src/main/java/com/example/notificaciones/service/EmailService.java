@@ -20,7 +20,8 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final CorreoEnviadoRepository correoRepo;
 
-    public void enviarConfirmacionCompra(EmailCompraDTO dto) {
+    // 🔄 CAMBIAR DE void A CorreoEnviado
+    public CorreoEnviado enviarConfirmacionCompra(EmailCompraDTO dto) {
         log.info("Enviando confirmación de compra a: {}", dto.getDestinatario());
         CorreoEnviado registro = new CorreoEnviado();
         registro.setDestinatario(dto.getDestinatario());
@@ -31,8 +32,8 @@ public class EmailService {
             mensaje.setSubject("Confirmación de compra - " + dto.getNombreEvento());
 
             StringBuilder cuerpo = new StringBuilder();
-            cuerpo.append("Hola").append(dto.getNombreUsuario()).append(",\n\n");
-            cuerpo.append("Tu compra fue exitosa. Aqui están tus entradas para ")
+            cuerpo.append("Hola ").append(dto.getNombreUsuario()).append(",\n\n");
+            cuerpo.append("Tu compra fue exitosa. Aquí están tus entradas para ")
                     .append(dto.getNombreEvento()).append("\n\n");
             for (String token : dto.getTokens()) {
                 cuerpo.append("Token: ").append(token).append("\n\n");
@@ -53,9 +54,12 @@ public class EmailService {
         } finally {
             correoRepo.save(registro);
         }
+
+        return registro; // 🔄 RETORNAR EL REGISTRO
     }
 
-    public void enviarAvisoLogout(EmailLogoutDTO dto) {
+    // 🔄 CAMBIAR DE void A CorreoEnviado
+    public CorreoEnviado enviarAvisoLogout(EmailLogoutDTO dto) {
         CorreoEnviado registro = new CorreoEnviado();
         registro.setDestinatario(dto.getDestinatario());
         registro.setTipo("LOGOUT");
@@ -63,12 +67,12 @@ public class EmailService {
         try {
             SimpleMailMessage mensaje = new SimpleMailMessage();
             mensaje.setTo(dto.getDestinatario());
-            mensaje.setSubject("Tu sesion fue cerrada por seguridad");
+            mensaje.setSubject("Tu sesión fue cerrada por seguridad");
 
-            String cuerpo = "Hola" + dto.getNombreUsuario() + ",\n\n"
+            String cuerpo = "Hola " + dto.getNombreUsuario() + ",\n\n"
                     + "Tu sesión ha sido cerrada por motivos de seguridad. \n"
                     + "Si fuiste tú, puedes ignorar este mensaje. \n"
-                    + "Si no reconoces esta acción, cambio tu contraseña inmediatamente. \n\n"
+                    + "Si no reconoces esta acción, cambia tu contraseña inmediatamente. \n\n"
                     + "Equipo de seguridad.";
             mensaje.setText(cuerpo);
             mailSender.send(mensaje);
@@ -81,11 +85,13 @@ public class EmailService {
 
         } finally {
             correoRepo.save(registro);
-
         }
+
+        return registro; // 🔄 RETORNAR EL REGISTRO
     }
 
-    public void enviarBienvenida(EmailBienvenidaDTO dto) {
+    // 🔄 CAMBIAR DE void A CorreoEnviado
+    public CorreoEnviado enviarBienvenida(EmailBienvenidaDTO dto) {
         CorreoEnviado registro = new CorreoEnviado();
         registro.setDestinatario(dto.getDestinatario());
         registro.setTipo("BIENVENIDA");
@@ -111,37 +117,41 @@ public class EmailService {
         } finally {
             correoRepo.save(registro);
         }
+
+        return registro; // 🔄 RETORNAR EL REGISTRO
     }
-        // ── Recuperación de contraseña ─────────────────────────────────
-        public void enviarRecuperacion (EmailRecuperacionDTO dto){
-            CorreoEnviado registro = new CorreoEnviado();
-            registro.setDestinatario(dto.getDestinatario());
-            registro.setTipo("RECUPERACION");
-            log.info("Enviando correo de recuperación a: {}", dto.getDestinatario());
-            try {
-                SimpleMailMessage mensaje = new SimpleMailMessage();
-                mensaje.setTo(dto.getDestinatario());
-                mensaje.setSubject("Recuperación de contraseña");
 
-                StringBuilder cuerpo = new StringBuilder();
-                cuerpo.append("Hola ").append(dto.getNombreUsuario()).append(",\n\n");
-                cuerpo.append("Recibimos una solicitud para restablecer tu contraseña.\n");
-                cuerpo.append("Haz clic en el siguiente enlace:\n\n");
-                cuerpo.append(dto.getLinkRecuperacion()).append("\n\n");
-                cuerpo.append("Si no solicitaste esto, ignora este mensaje.\n");
-                cuerpo.append("El enlace expira en 30 minutos.");
+    // 🔄 CAMBIAR DE void A CorreoEnviado
+    public CorreoEnviado enviarRecuperacion(EmailRecuperacionDTO dto) {
+        CorreoEnviado registro = new CorreoEnviado();
+        registro.setDestinatario(dto.getDestinatario());
+        registro.setTipo("RECUPERACION");
+        log.info("Enviando correo de recuperación a: {}", dto.getDestinatario());
+        try {
+            SimpleMailMessage mensaje = new SimpleMailMessage();
+            mensaje.setTo(dto.getDestinatario());
+            mensaje.setSubject("Recuperación de contraseña");
 
-                mensaje.setText(cuerpo.toString());
-                mailSender.send(mensaje);
-                registro.setEstado("ENVIADO");
-                log.info("Correo de recuperación enviado correctamente a: {}", dto.getDestinatario());
-            } catch (Exception e) {
-                registro.setEstado("FALLIDO");
-                log.error("Error al enviar recuperación a {}: {}", dto.getDestinatario(), e.getMessage());
-                throw new RuntimeException("Error al enviar el correo de recuperación");
-            } finally {
-                correoRepo.save(registro);
-            }
+            StringBuilder cuerpo = new StringBuilder();
+            cuerpo.append("Hola ").append(dto.getNombreUsuario()).append(",\n\n");
+            cuerpo.append("Recibimos una solicitud para restablecer tu contraseña.\n");
+            cuerpo.append("Haz clic en el siguiente enlace:\n\n");
+            cuerpo.append(dto.getLinkRecuperacion()).append("\n\n");
+            cuerpo.append("Si no solicitaste esto, ignora este mensaje.\n");
+            cuerpo.append("El enlace expira en 30 minutos.");
+
+            mensaje.setText(cuerpo.toString());
+            mailSender.send(mensaje);
+            registro.setEstado("ENVIADO");
+            log.info("Correo de recuperación enviado correctamente a: {}", dto.getDestinatario());
+        } catch (Exception e) {
+            registro.setEstado("FALLIDO");
+            log.error("Error al enviar recuperación a {}: {}", dto.getDestinatario(), e.getMessage());
+            throw new RuntimeException("Error al enviar el correo de recuperación");
+        } finally {
+            correoRepo.save(registro);
         }
-    }
 
+        return registro; // 🔄 RETORNAR EL REGISTRO
+    }
+}

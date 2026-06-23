@@ -6,30 +6,28 @@ import com.example.Tickets.service.TicketService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.test.web.servlet.MockMvc;
+
+// ✅ Imports de Mockito (los mismos que funcionan en otros proyectos)
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(TicketController.class)
+@WebMvcTest
 @AutoConfigureMockMvc(addFilters = false)
 class TicketControllerTest {
 
@@ -39,10 +37,10 @@ class TicketControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private TicketService ticketService;
 
-    @MockBean
+    @MockitoBean
     private JwtService jwtService;
 
     @Test
@@ -118,6 +116,160 @@ class TicketControllerTest {
                 .andExpect(status().isNotFound());
 
         verify(ticketService).findById(999L);
+    }
+
+    @Test
+    void deberiaObtenerTicketsPorEvento() throws Exception {
+        Tickets ticket1 = new Tickets();
+        ticket1.setIdTicket(1L);
+        ticket1.setIdEvento(10L);
+        ticket1.setNombre("Entrada VIP");
+        ticket1.setDescripcion("Acceso VIP");
+        ticket1.setPrecio(15000);
+        ticket1.setTipoTicket("VIP");
+        ticket1.setStock(100);
+        ticket1.setFechaGenerado(LocalDateTime.now());
+
+        Tickets ticket2 = new Tickets();
+        ticket2.setIdTicket(2L);
+        ticket2.setIdEvento(10L);
+        ticket2.setNombre("Entrada General");
+        ticket2.setDescripcion("Acceso General");
+        ticket2.setPrecio(5000);
+        ticket2.setTipoTicket("GENERAL");
+        ticket2.setStock(200);
+        ticket2.setFechaGenerado(LocalDateTime.now());
+
+        List<Tickets> tickets = Arrays.asList(ticket1, ticket2);
+
+        when(ticketService.findByEvento(10L)).thenReturn(tickets);
+
+        mockMvc.perform(get("/api/v1/tickets/evento/10")
+                        .accept(MediaTypes.HAL_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.ticketsList[0].idTicket").value(1))
+                .andExpect(jsonPath("$._embedded.ticketsList[0].nombre").value("Entrada VIP"))
+                .andExpect(jsonPath("$._embedded.ticketsList[1].idTicket").value(2))
+                .andExpect(jsonPath("$._embedded.ticketsList[1].nombre").value("Entrada General"))
+                .andExpect(jsonPath("$._links.self.href").exists())
+                .andExpect(jsonPath("$._links.todos.href").exists())
+                .andExpect(jsonPath("$._links.crear.href").exists());
+
+        verify(ticketService).findByEvento(10L);
+    }
+
+    @Test
+    void deberiaObtenerTicketsPorTipo() throws Exception {
+        Tickets ticket1 = new Tickets();
+        ticket1.setIdTicket(1L);
+        ticket1.setIdEvento(10L);
+        ticket1.setNombre("Entrada VIP");
+        ticket1.setDescripcion("Acceso VIP");
+        ticket1.setPrecio(15000);
+        ticket1.setTipoTicket("VIP");
+        ticket1.setStock(100);
+        ticket1.setFechaGenerado(LocalDateTime.now());
+
+        Tickets ticket2 = new Tickets();
+        ticket2.setIdTicket(3L);
+        ticket2.setIdEvento(20L);
+        ticket2.setNombre("Entrada VIP Concierto");
+        ticket2.setDescripcion("Acceso VIP Concierto");
+        ticket2.setPrecio(20000);
+        ticket2.setTipoTicket("VIP");
+        ticket2.setStock(50);
+        ticket2.setFechaGenerado(LocalDateTime.now());
+
+        List<Tickets> tickets = Arrays.asList(ticket1, ticket2);
+
+        when(ticketService.findByTipo("VIP")).thenReturn(tickets);
+
+        mockMvc.perform(get("/api/v1/tickets/tipo/VIP")
+                        .accept(MediaTypes.HAL_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.ticketsList[0].idTicket").value(1))
+                .andExpect(jsonPath("$._embedded.ticketsList[0].tipoTicket").value("VIP"))
+                .andExpect(jsonPath("$._embedded.ticketsList[1].idTicket").value(3))
+                .andExpect(jsonPath("$._embedded.ticketsList[1].tipoTicket").value("VIP"))
+                .andExpect(jsonPath("$._links.self.href").exists())
+                .andExpect(jsonPath("$._links.todos.href").exists())
+                .andExpect(jsonPath("$._links.crear.href").exists());
+
+        verify(ticketService).findByTipo("VIP");
+    }
+
+    @Test
+    void deberiaObtenerTicketsPorPrecioMenor() throws Exception {
+        Tickets ticket1 = new Tickets();
+        ticket1.setIdTicket(2L);
+        ticket1.setIdEvento(10L);
+        ticket1.setNombre("Entrada General");
+        ticket1.setDescripcion("Acceso General");
+        ticket1.setPrecio(5000);
+        ticket1.setTipoTicket("GENERAL");
+        ticket1.setStock(200);
+        ticket1.setFechaGenerado(LocalDateTime.now());
+
+        Tickets ticket2 = new Tickets();
+        ticket2.setIdTicket(4L);
+        ticket2.setIdEvento(10L);
+        ticket2.setNombre("Entrada Estudiante");
+        ticket2.setDescripcion("Acceso Estudiante");
+        ticket2.setPrecio(3000);
+        ticket2.setTipoTicket("ESTUDIANTE");
+        ticket2.setStock(50);
+        ticket2.setFechaGenerado(LocalDateTime.now());
+
+        List<Tickets> tickets = Arrays.asList(ticket1, ticket2);
+
+        when(ticketService.findByPrecioLessThan(10000)).thenReturn(tickets);
+
+        mockMvc.perform(get("/api/v1/tickets/precio/menor/10000")
+                        .accept(MediaTypes.HAL_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.ticketsList[0].precio").value(5000))
+                .andExpect(jsonPath("$._embedded.ticketsList[1].precio").value(3000))
+                .andExpect(jsonPath("$._links.self.href").exists())
+                .andExpect(jsonPath("$._links.todos.href").exists());
+
+        verify(ticketService).findByPrecioLessThan(10000);
+    }
+
+    @Test
+    void deberiaObtenerTicketsPorStockMayor() throws Exception {
+        Tickets ticket1 = new Tickets();
+        ticket1.setIdTicket(1L);
+        ticket1.setIdEvento(10L);
+        ticket1.setNombre("Entrada VIP");
+        ticket1.setDescripcion("Acceso VIP");
+        ticket1.setPrecio(15000);
+        ticket1.setTipoTicket("VIP");
+        ticket1.setStock(100);
+        ticket1.setFechaGenerado(LocalDateTime.now());
+
+        Tickets ticket2 = new Tickets();
+        ticket2.setIdTicket(2L);
+        ticket2.setIdEvento(10L);
+        ticket2.setNombre("Entrada General");
+        ticket2.setDescripcion("Acceso General");
+        ticket2.setPrecio(5000);
+        ticket2.setTipoTicket("GENERAL");
+        ticket2.setStock(200);
+        ticket2.setFechaGenerado(LocalDateTime.now());
+
+        List<Tickets> tickets = Arrays.asList(ticket1, ticket2);
+
+        when(ticketService.findByStockGreaterThan(50)).thenReturn(tickets);
+
+        mockMvc.perform(get("/api/v1/tickets/stock/mayor/50")
+                        .accept(MediaTypes.HAL_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.ticketsList[0].stock").value(100))
+                .andExpect(jsonPath("$._embedded.ticketsList[1].stock").value(200))
+                .andExpect(jsonPath("$._links.self.href").exists())
+                .andExpect(jsonPath("$._links.todos.href").exists());
+
+        verify(ticketService).findByStockGreaterThan(50);
     }
 
     @Test
