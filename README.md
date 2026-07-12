@@ -114,10 +114,4 @@ Cada microservicio expone su documentación OpenAPI/Swagger de forma local en su
    http://localhost:8090
    ```
 
-## Ejecución remota
-
-*(Completar esta sección con las instrucciones y URLs correspondientes una vez definido el entorno de despliegue remoto — por ejemplo, servidor cloud, VPS o plataforma de contenedores utilizada.)*
-
-## Acceso al repositorio
-
-Este repositorio es público, con acceso otorgado al equipo docente y a los integrantes del equipo de desarrollo.
+grantes del equipo de desarrollo.
