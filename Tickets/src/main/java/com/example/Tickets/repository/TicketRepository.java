@@ -11,7 +11,7 @@ public interface TicketRepository extends JpaRepository<Tickets, Long> {
 
     // ✅ Ahora usa camelCase
     List<Tickets> findByIdEvento(Long idEvento);
-    List<Tickets> findByTipoTicket(String tipo);
+    List<Tickets> findByTipoTicket(String tipoTicket);
     List<Tickets> findByPrecioLessThan(int precio);
     List<Tickets> findByStockGreaterThan(int stock);
 }

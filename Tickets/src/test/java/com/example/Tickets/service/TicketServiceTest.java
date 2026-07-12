@@ -26,18 +26,16 @@ class TicketServiceTest {
     @InjectMocks
     private TicketService ticketService;
 
-    // ============================================================
-    //  TEST 1: OBTENER TODOS LOS TICKETS
-    // ============================================================
+   
     @Test
     void deberiaObtenerTodosLosTickets() {
         Tickets ticket1 = new Tickets();
-        ticket1.setId_ticket(1L);
+        ticket1.setIdTicket(1L);
         ticket1.setNombre("Entrada VIP");
         ticket1.setPrecio(15000);
 
         Tickets ticket2 = new Tickets();
-        ticket2.setId_ticket(2L);
+        ticket2.setIdTicket(2L);
         ticket2.setNombre("Entrada General");
         ticket2.setPrecio(5000);
 
@@ -51,13 +49,11 @@ class TicketServiceTest {
         verify(ticketRepository).findAll();
     }
 
-    // ============================================================
-    //  TEST 2: ENCONTRAR TICKET POR ID EXISTENTE
-    // ============================================================
+  
     @Test
     void deberiaEncontrarTicketPorId() {
         Tickets ticket = new Tickets();
-        ticket.setId_ticket(1L);
+        ticket.setIdTicket(1L);
         ticket.setNombre("Entrada VIP");
         ticket.setPrecio(15000);
 
@@ -70,9 +66,7 @@ class TicketServiceTest {
         verify(ticketRepository).findById(1L);
     }
 
-    // ============================================================
-    //  TEST 3: ENCONTRAR TICKET POR ID NO EXISTENTE
-    // ============================================================
+  
     @Test
     void deberiaRetornarOptionalVacioCuandoTicketNoExiste() {
         when(ticketRepository.findById(999L)).thenReturn(Optional.empty());
@@ -83,40 +77,34 @@ class TicketServiceTest {
         verify(ticketRepository).findById(999L);
     }
 
-    // ============================================================
-    //  TEST 4: GUARDAR TICKET
-    // ============================================================
     @Test
     void deberiaGuardarTicket() {
         Tickets ticket = new Tickets();
-        ticket.setId_ticket(1L);
+        ticket.setIdTicket(1L);
         ticket.setNombre("Entrada VIP");
         ticket.setPrecio(15000);
-        ticket.setFecha_generado(null);
+        ticket.setFechaGenerado(null);
 
         Tickets ticketGuardado = new Tickets();
-        ticketGuardado.setId_ticket(1L);
+        ticketGuardado.setIdTicket(1L);
         ticketGuardado.setNombre("Entrada VIP");
         ticketGuardado.setPrecio(15000);
-        ticketGuardado.setFecha_generado(LocalDateTime.now());
+        ticketGuardado.setFechaGenerado(LocalDateTime.now());
 
         when(ticketRepository.save(any(Tickets.class))).thenReturn(ticketGuardado);
 
         Tickets resultado = ticketService.save(ticket);
 
         assertNotNull(resultado);
-        assertNotNull(resultado.getFecha_generado());
+        assertNotNull(resultado.getFechaGenerado());
         assertEquals("Entrada VIP", resultado.getNombre());
         verify(ticketRepository).save(any(Tickets.class));
     }
 
-    // ============================================================
-    //  TEST 5: ACTUALIZAR TICKET EXISTENTE
-    // ============================================================
     @Test
     void deberiaActualizarTicket() {
         Tickets ticket = new Tickets();
-        ticket.setId_ticket(1L);
+        ticket.setIdTicket(1L);
         ticket.setNombre("Entrada VIP Actualizada");
         ticket.setPrecio(20000);
 
@@ -132,13 +120,11 @@ class TicketServiceTest {
         verify(ticketRepository).save(any(Tickets.class));
     }
 
-    // ============================================================
-    //  TEST 6: ACTUALIZAR TICKET NO EXISTENTE
-    // ============================================================
+  
     @Test
     void deberiaLanzarExcepcionCuandoTicketNoExisteAlActualizar() {
         Tickets ticket = new Tickets();
-        ticket.setId_ticket(999L);
+        ticket.setIdTicket(999L);
         ticket.setNombre("Ticket Inexistente");
 
         when(ticketRepository.existsById(999L)).thenReturn(false);
@@ -152,13 +138,11 @@ class TicketServiceTest {
         verify(ticketRepository, never()).save(any(Tickets.class));
     }
 
-    // ============================================================
-    //  TEST 7: ELIMINAR TICKET POR OBJETO
-    // ============================================================
+  
     @Test
     void deberiaEliminarTicket() {
         Tickets ticket = new Tickets();
-        ticket.setId_ticket(1L);
+        ticket.setIdTicket(1L);
         ticket.setNombre("Entrada VIP");
 
         doNothing().when(ticketRepository).delete(ticket);
@@ -168,9 +152,7 @@ class TicketServiceTest {
         verify(ticketRepository).delete(ticket);
     }
 
-    // ============================================================
-    //  TEST 8: ELIMINAR TICKET POR ID
-    // ============================================================
+   
     @Test
     void deberiaEliminarTicketPorId() {
         Long id = 1L;
@@ -181,29 +163,27 @@ class TicketServiceTest {
         verify(ticketRepository).deleteById(id);
     }
 
-    // ============================================================
-    //  TEST 9: BUSCAR TICKETS POR EVENTO
-    // ============================================================
+    
     @Test
     void deberiaBuscarTicketsPorEvento() {
         Tickets ticket1 = new Tickets();
-        ticket1.setId_ticket(1L);
-        ticket1.setId_evento(10L);
+        ticket1.setIdTicket(1L);
+        ticket1.setIdEvento(10L);
         ticket1.setNombre("Entrada VIP");
 
         Tickets ticket2 = new Tickets();
-        ticket2.setId_ticket(2L);
-        ticket2.setId_evento(10L);
+        ticket2.setIdTicket(2L);
+        ticket2.setIdEvento(10L);
         ticket2.setNombre("Entrada General");
 
-        // ✅ CAMBIADO: findByIdEvento en lugar de findById_evento
+        // ✅ CAMBIADO: findByIdEvento en lugar de findByIdEvento
         when(ticketRepository.findByIdEvento(10L)).thenReturn(Arrays.asList(ticket1, ticket2));
 
         List<Tickets> tickets = ticketService.findByEvento(10L);
 
         assertEquals(2, tickets.size());
-        assertEquals(10L, tickets.get(0).getId_evento());
-        assertEquals(10L, tickets.get(1).getId_evento());
+        assertEquals(10L, tickets.get(0).getIdEvento());
+        assertEquals(10L, tickets.get(1).getIdEvento());
         verify(ticketRepository).findByIdEvento(10L);
     }
 
@@ -213,23 +193,23 @@ class TicketServiceTest {
     @Test
     void deberiaBuscarTicketsPorTipo() {
         Tickets ticket1 = new Tickets();
-        ticket1.setId_ticket(1L);
-        ticket1.setTipo_ticket("VIP");
+        ticket1.setIdTicket(1L);
+        ticket1.setTipoTicket("VIP");
         ticket1.setNombre("Entrada VIP");
 
         Tickets ticket2 = new Tickets();
-        ticket2.setId_ticket(3L);
-        ticket2.setTipo_ticket("VIP");
+        ticket2.setIdTicket(3L);
+        ticket2.setTipoTicket("VIP");
         ticket2.setNombre("Entrada VIP Concierto");
 
-        // ✅ CAMBIADO: findByTipoTicket en lugar de findByTipo_ticket
+        // ✅ CAMBIADO: findByTipoTicket en lugar de findByTipoTicket
         when(ticketRepository.findByTipoTicket("VIP")).thenReturn(Arrays.asList(ticket1, ticket2));
 
         List<Tickets> tickets = ticketService.findByTipo("VIP");
 
         assertEquals(2, tickets.size());
-        assertEquals("VIP", tickets.get(0).getTipo_ticket());
-        assertEquals("VIP", tickets.get(1).getTipo_ticket());
+        assertEquals("VIP", tickets.get(0).getTipoTicket());
+        assertEquals("VIP", tickets.get(1).getTipoTicket());
         verify(ticketRepository).findByTipoTicket("VIP");
     }
 
@@ -239,12 +219,12 @@ class TicketServiceTest {
     @Test
     void deberiaBuscarTicketsPorPrecioMenor() {
         Tickets ticket1 = new Tickets();
-        ticket1.setId_ticket(2L);
+        ticket1.setIdTicket(2L);
         ticket1.setPrecio(5000);
         ticket1.setNombre("Entrada General");
 
         Tickets ticket2 = new Tickets();
-        ticket2.setId_ticket(4L);
+        ticket2.setIdTicket(4L);
         ticket2.setPrecio(3000);
         ticket2.setNombre("Entrada Estudiante");
 
@@ -264,12 +244,12 @@ class TicketServiceTest {
     @Test
     void deberiaBuscarTicketsPorStockMayor() {
         Tickets ticket1 = new Tickets();
-        ticket1.setId_ticket(1L);
+        ticket1.setIdTicket(1L);
         ticket1.setStock(100);
         ticket1.setNombre("Entrada VIP");
 
         Tickets ticket2 = new Tickets();
-        ticket2.setId_ticket(2L);
+        ticket2.setIdTicket(2L);
         ticket2.setStock(200);
         ticket2.setNombre("Entrada General");
 

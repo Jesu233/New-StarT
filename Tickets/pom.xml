@@ -3,12 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.5</version>
+        <version>3.5.3</version>
         <relativePath/>
     </parent>
 
@@ -23,10 +24,11 @@
         <spring-cloud.version>2025.0.0</spring-cloud.version>
     </properties>
 
+
     <dependencies>
-        <!-- ============================================================ -->
-        <!--  SPRING BOOT STARTERS                                          -->
-        <!-- ============================================================ -->
+
+        <!-- ================= SPRING BOOT ================= -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -47,37 +49,39 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- ============================================================ -->
-        <!--  HATEOAS                                                      -->
-        <!-- ============================================================ -->
+
+        <!-- ================= HATEOAS ================= -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-hateoas</artifactId>
         </dependency>
 
-        <!-- ============================================================ -->
-        <!--  SWAGGER / OPENAPI                                            -->
-        <!-- ============================================================ -->
+
+        <!-- ================= SWAGGER ================= -->
+
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.8.13</version>
         </dependency>
 
-        <!-- ============================================================ -->
-        <!--  JWT                                                         -->
-        <!-- ============================================================ -->
+
+        <!-- ================= JWT ================= -->
+
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
             <version>0.12.6</version>
         </dependency>
+
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
             <version>0.12.6</version>
             <scope>runtime</scope>
         </dependency>
+
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
@@ -85,22 +89,23 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- ============================================================ -->
-        <!--  SPRING CLOUD                                                -->
-        <!-- ============================================================ -->
+
+        <!-- ================= SPRING CLOUD / EUREKA ================= -->
+
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
-        <!-- ============================================================ -->
-        <!--  DATABASE                                                     -->
-        <!-- ============================================================ -->
+
+        <!-- ================= DATABASE ================= -->
+
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
+
 
         <dependency>
             <groupId>com.h2database</groupId>
@@ -108,79 +113,61 @@
             <scope>test</scope>
         </dependency>
 
+
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
+
+
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-mysql</artifactId>
         </dependency>
 
-        <!-- ============================================================ -->
-        <!--  LOGGING                                                      -->
-        <!-- ============================================================ -->
+
+        <!-- ================= LOGGING ================= -->
+
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
             <version>7.4</version>
         </dependency>
 
-        <!-- ============================================================ -->
-        <!--  LOMBOK                                                       -->
-        <!-- ============================================================ -->
+
+        <!-- ================= LOMBOK ================= -->
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
 
-        <!-- ============================================================ -->
-        <!--  TESTS - IGUAL QUE PROMOCION Y NOTIFICACIONES                 -->
-        <!-- ============================================================ -->
+
+        <!-- ================= TESTS ================= -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- ⭐ ESTA ES LA QUE FALTABA ⭐ -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc-test</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+
     </dependencies>
 
-    <!-- ============================================================ -->
-    <!--  SPRING CLOUD DEPENDENCY MANAGEMENT                           -->
-    <!-- ============================================================ -->
+
+    <!-- ================= SPRING CLOUD MANAGEMENT ================= -->
+
     <dependencyManagement>
         <dependencies>
+
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -188,14 +175,20 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 
+
+    <!-- ================= BUILD ================= -->
+
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+
                 <configuration>
                     <excludes>
                         <exclude>
@@ -204,8 +197,11 @@
                         </exclude>
                     </excludes>
                 </configuration>
+
             </plugin>
+
         </plugins>
     </build>
+
 
 </project>

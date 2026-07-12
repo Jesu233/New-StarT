@@ -22,21 +22,21 @@ public class TicketService {
         return ticketRepository.findAll();
     }
 
-    public Optional<Tickets> findById(Long id) {
-        log.info("Buscando ticket con ID: {}", id);
-        return ticketRepository.findById(id);
+    public Optional<Tickets> findById(Long idTicket) {
+        log.info("Buscando ticket con ID: {}", idTicket);
+        return ticketRepository.findById(idTicket);
     }
 
-    // ✅ Ahora usa camelCase
+
     public List<Tickets> findByEvento(Long idEvento) {
         log.info("Buscando tickets del evento: {}", idEvento);
         return ticketRepository.findByIdEvento(idEvento);
     }
 
     // ✅ Ahora usa camelCase
-    public List<Tickets> findByTipo(String tipo) {
-        log.info("Buscando tickets por tipo: {}", tipo);
-        return ticketRepository.findByTipoTicket(tipo);
+    public List<Tickets> findByTipo(String tipoTicket) {
+        log.info("Buscando tickets por tipo: {}", tipoTicket);
+        return ticketRepository.findByTipoTicket(tipoTicket);
     }
 
     public List<Tickets> findByPrecioLessThan(int precio) {
@@ -70,8 +70,8 @@ public class TicketService {
         ticketRepository.delete(ticket);
     }
 
-    public void deleteById(Long id) {
-        log.info("Eliminando ticket con ID: {}", id);
-        ticketRepository.deleteById(id);
+    public void deleteById(Long idTicket) {
+        log.info("Eliminando ticket con ID: {}", idTicket);
+        ticketRepository.deleteById(idTicket);
     }
 }

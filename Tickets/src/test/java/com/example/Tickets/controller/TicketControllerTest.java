@@ -1,41 +1,40 @@
 package com.example.Tickets.controller;
 
+import com.example.Tickets.assembler.TicketsModelAssembler;
 import com.example.Tickets.model.Tickets;
 import com.example.Tickets.security.jwt.JwtService;
 import com.example.Tickets.service.TicketService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.MediaTypes;
-import org.springframework.test.web.servlet.MockMvc;
 
-// ✅ Imports de Mockito (los mismos que funcionan en otros proyectos)
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+
+import org.springframework.context.annotation.Import;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest
 @AutoConfigureMockMvc(addFilters = false)
+@Import(TicketsModelAssembler.class)
 class TicketControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+
 
     @MockitoBean
     private TicketService ticketService;
@@ -316,7 +315,8 @@ class TicketControllerTest {
         String json = """
                 {
                     "idEvento": 10,
-                    "precio": 15000
+                    "precio": 15000,
+                    "stock": 100
                 }
                 """;
 
@@ -365,24 +365,7 @@ class TicketControllerTest {
         verify(ticketService).update(any(Tickets.class));
     }
 
-    @Test
-    void deberiaEliminarTicket() throws Exception {
-        doNothing().when(ticketService).delete(any(Tickets.class));
 
-        String json = """
-                {
-                    "idTicket": 1
-                }
-                """;
-
-        mockMvc.perform(delete("/api/v1/tickets")
-                        .contentType("application/json")
-                        .content(json))
-                .andExpect(status().isNoContent())
-                .andExpect(header().exists("Location"));
-
-        verify(ticketService).delete(any(Tickets.class));
-    }
 
     @Test
     void deberiaEliminarTicketPorId() throws Exception {

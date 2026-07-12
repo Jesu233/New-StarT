@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
+@Relation(collectionRelation = "ticketsList", itemRelation = "ticket")
 @Schema(
         description = "Entidad que representa un ticket de entrada a un evento",
         title = "Ticket"
@@ -30,14 +32,14 @@ public class Tickets extends RepresentationModel<Tickets> {
             example = "1",
             accessMode = Schema.AccessMode.READ_ONLY
     )
-    private Long idTicket;  // ✅ ANTES: id_ticket
+    private Long idTicket;
 
     @Schema(
             description = "ID del evento al que pertenece el ticket",
             example = "10",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private Long idEvento;  // ✅ ANTES: id_evento
+    private Long idEvento;
 
     @NotNull(message = "Se necesita el nombre del ticket.")
     @Schema(
@@ -62,7 +64,7 @@ public class Tickets extends RepresentationModel<Tickets> {
             example = "2026-06-23T10:00:00",
             accessMode = Schema.AccessMode.READ_ONLY
     )
-    private LocalDateTime fechaGenerado;  // ✅ ANTES: fecha_generado
+    private LocalDateTime fechaGenerado;
 
     @NotNull(message = "Se necesita precio.")
     @Schema(
@@ -80,8 +82,7 @@ public class Tickets extends RepresentationModel<Tickets> {
             allowableValues = {"VIP", "GENERAL", "PREMIUM", "ESTUDIANTE"},
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private String tipoTicket;  // ✅ ANTES: tipo_ticket
-
+    private String tipoTicket;
     @NotNull
     @Schema(
             description = "Cantidad de tickets disponibles en stock",

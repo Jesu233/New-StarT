@@ -1,0 +1,2 @@
+ALTER TABLE reservas CHANGE COLUMN fechaInicio fecha_inicio DATETIME NOT NULL;
+ALTER TABLE reservas CHANGE COLUMN fechaFin fecha_fin DATETIME NOT NULL;

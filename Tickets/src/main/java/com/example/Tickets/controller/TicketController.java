@@ -1,245 +1,217 @@
 package com.example.Tickets.controller;
 
+import com.example.Tickets.assembler.TicketsModelAssembler;
 import com.example.Tickets.model.Tickets;
-import com.example.Tickets.security.jwt.JwtService;
 import com.example.Tickets.service.TicketService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.hateoas.MediaTypes;
-import org.springframework.test.web.servlet.MockMvc;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-@WebMvcTest(TicketController.class)
-@AutoConfigureMockMvc(addFilters = false)
-class TicketControllerTest {
+@RestController
+@RequestMapping("/api/v1/tickets")
+@RequiredArgsConstructor
+@Tag(name = "Tickets", description = "Gestión de tickets de acceso a eventos")
+@SecurityRequirement(name = "bearerAuth")
+public class TicketController {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private final TicketService ticketService;
+    private final TicketsModelAssembler assembler;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @GetMapping
+    @Operation(
+            summary = "Listar tickets",
+            description = "Obtiene todos los tickets registrados en el sistema"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    public ResponseEntity<CollectionModel<Tickets>> obtenerTodos() {
+        List<Tickets> tickets = ticketService.findAll();
 
-    @MockBean
-    private TicketService ticketService;
+        CollectionModel<Tickets> modelo = assembler.toCollectionModel(tickets);
+        modelo.add(linkTo(methodOn(TicketController.class).obtenerTodos()).withSelfRel());
+        modelo.add(linkTo(methodOn(TicketController.class).crearTicket(null)).withRel("crear"));
 
-    @MockBean
-    private JwtService jwtService;
-
-    @Test
-    void deberiaObtenerTodosLosTickets() throws Exception {
-        Tickets ticket1 = new Tickets();
-        ticket1.setIdTicket(1L);
-        ticket1.setIdEvento(10L);
-        ticket1.setNombre("Entrada VIP");
-        ticket1.setDescripcion("Acceso VIP");
-        ticket1.setPrecio(15000);
-        ticket1.setTipoTicket("VIP");
-        ticket1.setStock(100);
-        ticket1.setFechaGenerado(LocalDateTime.now());
-
-        Tickets ticket2 = new Tickets();
-        ticket2.setIdTicket(2L);
-        ticket2.setIdEvento(10L);
-        ticket2.setNombre("Entrada General");
-        ticket2.setDescripcion("Acceso General");
-        ticket2.setPrecio(5000);
-        ticket2.setTipoTicket("GENERAL");
-        ticket2.setStock(200);
-        ticket2.setFechaGenerado(LocalDateTime.now());
-
-        List<Tickets> tickets = Arrays.asList(ticket1, ticket2);
-
-        when(ticketService.findAll()).thenReturn(tickets);
-
-        mockMvc.perform(get("/api/v1/tickets")
-                        .accept(MediaTypes.HAL_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.ticketsList[0].idTicket").value(1))
-                .andExpect(jsonPath("$._embedded.ticketsList[0].nombre").value("Entrada VIP"))
-                .andExpect(jsonPath("$._embedded.ticketsList[0]._links.self.href").exists())
-                .andExpect(jsonPath("$._embedded.ticketsList[1].idTicket").value(2))
-                .andExpect(jsonPath("$._embedded.ticketsList[1].nombre").value("Entrada General"))
-                .andExpect(jsonPath("$._embedded.ticketsList[1]._links.self.href").exists());
-
-        verify(ticketService).findAll();
+        return ResponseEntity.ok(modelo);
     }
 
-    @Test
-    void deberiaObtenerTicketPorId() throws Exception {
-        Tickets ticket = new Tickets();
-        ticket.setIdTicket(1L);
-        ticket.setIdEvento(10L);
-        ticket.setNombre("Entrada VIP");
-        ticket.setDescripcion("Acceso VIP");
-        ticket.setPrecio(15000);
-        ticket.setTipoTicket("VIP");
-        ticket.setStock(100);
-        ticket.setFechaGenerado(LocalDateTime.now());
-
-        when(ticketService.findById(1L)).thenReturn(Optional.of(ticket));
-
-        mockMvc.perform(get("/api/v1/tickets/1")
-                        .accept(MediaTypes.HAL_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.idTicket").value(1))
-                .andExpect(jsonPath("$.nombre").value("Entrada VIP"))
-                .andExpect(jsonPath("$._links.self.href").exists())
-                .andExpect(jsonPath("$._links.todos.href").exists());
-
-        verify(ticketService).findById(1L);
+    @GetMapping("/{idTicket}")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @Operation(
+            summary = "Buscar ticket por ID",
+            description = "Busca un ticket a través de su identificador"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ticket encontrado"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos"),
+            @ApiResponse(responseCode = "404", description = "Ticket no encontrado")
+    })
+    public ResponseEntity<Tickets> obtenerPorId(@PathVariable Long idTicket) {
+        return ticketService.findById(idTicket)
+                .map(assembler::toModel)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Test
-    void deberiaRetornar404CuandoTicketNoExiste() throws Exception {
-        when(ticketService.findById(999L)).thenReturn(Optional.empty());
+    @GetMapping("/evento/{idEvento}")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @Operation(
+            summary = "Buscar tickets por evento",
+            description = "Obtiene los tickets asociados a un evento en particular"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos")
+    })
+    public ResponseEntity<CollectionModel<Tickets>> obtenerPorEvento(@PathVariable Long idEvento) {
+        List<Tickets> tickets = ticketService.findByEvento(idEvento);
 
-        mockMvc.perform(get("/api/v1/tickets/999")
-                        .accept(MediaTypes.HAL_JSON))
-                .andExpect(status().isNotFound());
+        CollectionModel<Tickets> modelo = assembler.toCollectionModel(tickets);
+        modelo.add(linkTo(methodOn(TicketController.class).obtenerPorEvento(idEvento)).withSelfRel());
+        modelo.add(linkTo(methodOn(TicketController.class).obtenerTodos()).withRel("todos"));
+        modelo.add(linkTo(methodOn(TicketController.class).crearTicket(null)).withRel("crear"));
 
-        verify(ticketService).findById(999L);
+        return ResponseEntity.ok(modelo);
     }
 
-    @Test
-    void deberiaCrearTicket() throws Exception {
-        Tickets ticket = new Tickets();
-        ticket.setIdTicket(1L);
-        ticket.setIdEvento(10L);
-        ticket.setNombre("Entrada VIP");
-        ticket.setDescripcion("Acceso VIP");
-        ticket.setPrecio(15000);
-        ticket.setTipoTicket("VIP");
-        ticket.setStock(100);
-        ticket.setFechaGenerado(LocalDateTime.now());
+    @GetMapping("/tipo/{tipoTicket}")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @Operation(
+            summary = "Buscar tickets por tipo",
+            description = "Obtiene los tickets según su tipo (VIP, GENERAL, PREMIUM, ESTUDIANTE)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos")
+    })
+    public ResponseEntity<CollectionModel<Tickets>> obtenerPorTipo(@PathVariable String tipoTicket) {
+        List<Tickets> tickets = ticketService.findByTipo(tipoTicket);
 
-        when(ticketService.save(any(Tickets.class))).thenReturn(ticket);
+        CollectionModel<Tickets> modelo = assembler.toCollectionModel(tickets);
+        modelo.add(linkTo(methodOn(TicketController.class).obtenerPorTipo(tipoTicket)).withSelfRel());
+        modelo.add(linkTo(methodOn(TicketController.class).obtenerTodos()).withRel("todos"));
+        modelo.add(linkTo(methodOn(TicketController.class).crearTicket(null)).withRel("crear"));
 
-        String json = """
-                {
-                    "idEvento": 10,
-                    "nombre": "Entrada VIP",
-                    "descripcion": "Acceso VIP",
-                    "precio": 15000,
-                    "tipoTicket": "VIP",
-                    "stock": 100,
-                    "fechaGenerado": "2026-06-23T10:00:00"
-                }
-                """;
-
-        mockMvc.perform(post("/api/v1/tickets")
-                        .contentType("application/json")
-                        .accept(MediaTypes.HAL_JSON)
-                        .content(json))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.idTicket").value(1))
-                .andExpect(jsonPath("$.nombre").value("Entrada VIP"))
-                .andExpect(jsonPath("$._links.self.href").exists())
-                .andExpect(jsonPath("$._links.todos.href").exists());
-
-        verify(ticketService).save(any(Tickets.class));
+        return ResponseEntity.ok(modelo);
     }
 
-    @Test
-    void deberiaRetornar400CuandoFaltanCamposObligatorios() throws Exception {
-        String json = """
-                {
-                    "idEvento": 10,
-                    "precio": 15000
-                }
-                """;
+    @GetMapping("/precio/menor/{precio}")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @Operation(
+            summary = "Buscar tickets con precio menor",
+            description = "Obtiene los tickets cuyo precio es menor al valor indicado"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos")
+    })
+    public ResponseEntity<CollectionModel<Tickets>> obtenerPorPrecioMenor(@PathVariable int precio) {
+        List<Tickets> tickets = ticketService.findByPrecioLessThan(precio);
 
-        mockMvc.perform(post("/api/v1/tickets")
-                        .contentType("application/json")
-                        .content(json))
-                .andExpect(status().isBadRequest());
+        CollectionModel<Tickets> modelo = assembler.toCollectionModel(tickets);
+        modelo.add(linkTo(methodOn(TicketController.class).obtenerPorPrecioMenor(precio)).withSelfRel());
+        modelo.add(linkTo(methodOn(TicketController.class).obtenerTodos()).withRel("todos"));
+
+        return ResponseEntity.ok(modelo);
     }
 
-    @Test
-    void deberiaActualizarTicket() throws Exception {
-        Tickets ticket = new Tickets();
-        ticket.setIdTicket(1L);
-        ticket.setIdEvento(10L);
-        ticket.setNombre("Entrada VIP Actualizada");
-        ticket.setDescripcion("Acceso VIP Mejorado");
-        ticket.setPrecio(20000);
-        ticket.setTipoTicket("VIP");
-        ticket.setStock(80);
-        ticket.setFechaGenerado(LocalDateTime.now());
+    @GetMapping("/stock/mayor/{stock}")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @Operation(
+            summary = "Buscar tickets con stock mayor",
+            description = "Obtiene los tickets cuyo stock disponible es mayor al valor indicado"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos")
+    })
+    public ResponseEntity<CollectionModel<Tickets>> obtenerPorStockMayor(@PathVariable int stock) {
+        List<Tickets> tickets = ticketService.findByStockGreaterThan(stock);
 
-        when(ticketService.update(any(Tickets.class))).thenReturn(ticket);
+        CollectionModel<Tickets> modelo = assembler.toCollectionModel(tickets);
+        modelo.add(linkTo(methodOn(TicketController.class).obtenerPorStockMayor(stock)).withSelfRel());
+        modelo.add(linkTo(methodOn(TicketController.class).obtenerTodos()).withRel("todos"));
 
-        String json = """
-                {
-                    "idTicket": 1,
-                    "idEvento": 10,
-                    "nombre": "Entrada VIP Actualizada",
-                    "descripcion": "Acceso VIP Mejorado",
-                    "precio": 20000,
-                    "tipoTicket": "VIP",
-                    "stock": 80,
-                    "fechaGenerado": "2026-06-23T10:00:00"
-                }
-                """;
-
-        mockMvc.perform(put("/api/v1/tickets")
-                        .contentType("application/json")
-                        .accept(MediaTypes.HAL_JSON)
-                        .content(json))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.idTicket").value(1))
-                .andExpect(jsonPath("$.nombre").value("Entrada VIP Actualizada"))
-                .andExpect(jsonPath("$._links.self.href").exists());
-
-        verify(ticketService).update(any(Tickets.class));
+        return ResponseEntity.ok(modelo);
     }
 
-    @Test
-    void deberiaEliminarTicket() throws Exception {
-        doNothing().when(ticketService).delete(any(Tickets.class));
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @Operation(
+            summary = "Crear ticket",
+            description = "Crea un nuevo ticket en el sistema"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Ticket creado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos")
+    })
+    public ResponseEntity<Tickets> crearTicket(@Valid @RequestBody Tickets ticket) {
+        Tickets creado = ticketService.save(ticket);
+        Tickets modelo = assembler.toModel(creado);
 
-        String json = """
-                {
-                    "idTicket": 1
-                }
-                """;
+        URI location = linkTo(methodOn(TicketController.class).obtenerPorId(creado.getIdTicket())).toUri();
 
-        mockMvc.perform(delete("/api/v1/tickets")
-                        .contentType("application/json")
-                        .content(json))
-                .andExpect(status().isNoContent())
-                .andExpect(header().exists("Location"));
-
-        verify(ticketService).delete(any(Tickets.class));
+        return ResponseEntity.created(location).body(modelo);
     }
 
-    @Test
-    void deberiaEliminarTicketPorId() throws Exception {
-        doNothing().when(ticketService).deleteById(1L);
+    @PutMapping
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @Operation(
+            summary = "Actualizar ticket",
+            description = "Actualiza los datos de un ticket existente"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ticket actualizado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos"),
+            @ApiResponse(responseCode = "404", description = "Ticket no encontrado")
+    })
+    public ResponseEntity<Tickets> actualizarTicket(@Valid @RequestBody Tickets ticket) {
+        Tickets actualizado = ticketService.update(ticket);
+        return ResponseEntity.ok(assembler.toModel(actualizado));
+    }
 
-        mockMvc.perform(delete("/api/v1/tickets/1"))
-                .andExpect(status().isNoContent())
-                .andExpect(header().exists("Location"));
 
-        verify(ticketService).deleteById(1L);
+
+    @DeleteMapping("/{idTicket}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @Operation(
+            summary = "Eliminar ticket por ID",
+            description = "Elimina un ticket a través de su identificador"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Ticket eliminado correctamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos"),
+            @ApiResponse(responseCode = "404", description = "Ticket no encontrado")
+    })
+    public ResponseEntity<Void> eliminarTicketPorId(@PathVariable Long idTicket) {
+        ticketService.deleteById(idTicket);
+
+        URI location = linkTo(methodOn(TicketController.class).obtenerTodos()).toUri();
+        return ResponseEntity.noContent().location(location).build();
     }
 }
