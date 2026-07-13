@@ -56,8 +56,6 @@ El Gateway (puerto `8090`) es un **Spring Cloud Gateway reactivo (WebFlux)** que
 | `ms-artistas` | `ms-artistas` | `http://localhost:8090/api/v1/artistas/**` |
 | `ms-tickets` | `Tickets` | `http://localhost:8090/api/v1/tickets/**` |
 
-> Nota: los identificadores de servicio en Eureka (`Eventos`, `Reservas`, `Tickets`) usan mayúscula inicial, a diferencia de los demás (`ms-recintos`, `ms-localidades`, `ms-artistas`), que van en minúscula. Esto es consistente con el nombre declarado en el `spring.application.name` de cada microservicio respectivo.
-
 ## Documentación Swagger
 
 Cada microservicio expone su documentación OpenAPI/Swagger de forma local en su propio puerto:
