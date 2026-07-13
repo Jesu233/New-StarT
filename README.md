@@ -74,7 +74,7 @@ Cada microservicio expone su documentación OpenAPI/Swagger de forma local en su
 | Promoción | http://localhost:8088/swagger-ui.html |
 | Notificaciones | http://localhost:8089/swagger-ui.html |
 
-*(Documentación remota: agregar aquí las URLs correspondientes una vez desplegado el sistema en un servidor o entorno cloud.)*
+
 
 ## Instrucciones de ejecución local
 
