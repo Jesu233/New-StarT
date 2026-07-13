@@ -38,7 +38,7 @@ Cada dominio del negocio (eventos, reservas, tickets, artistas, recintos, locali
 | Promoción | `promocion` | `8088` | Gestión de promociones y descuentos |
 | Notificaciones | `notificaciones` | `8089` | Envío de notificaciones a los usuarios |
 
-\* *El microservicio `DFullS` corresponde al servicio de **autenticación**. El nombre de la carpeta quedó así por un error al momento de nombrar el proyecto; se mantiene sin modificar por motivos de tiempo, pero su función es exclusivamente la autenticación del sistema.*
+\* *El microservicio `DFullS` corresponde al servicio de **autenticación**. El nombre de la carpeta quedó así por un error al momento de nombrar el proyecto; se mantiene sin modificar por motivos de gestión, pero su función es exclusivamente la autenticación del sistema.*
 
 ## Rutas principales del Gateway
 
